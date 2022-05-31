@@ -9,6 +9,11 @@ the server want touched.
 
 in the client , i converted both the 'amount' and the 'amount_received' to dollars. 
 
+created an api call for real conversion rate, 
+which is once a day cleared and populated again.
+but for running purpuses its commented. 
+
+to run the real api, just comment the items in conversionRates object.
 
 ======== tests ======
 
