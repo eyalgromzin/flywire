@@ -1,0 +1,4 @@
+- search change save to redux 
+- on click get results 
+- save results as objects
+- show results from redux
