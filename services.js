@@ -13,17 +13,6 @@ setInterval(() => {
 
 const AMOUNT_THRESHOLD = 1000000
 
-const checkEmail = (email) => {
-  // var emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;  //slow
-  var emailRegex = /[a-z0-9]+@[a-z]+\.[a-z]{2,3}/;  
-  
-
-  //returns null is no match
-  let isValidEmail = !!email.match(emailRegex)
-
-  return isValidEmail
-}
-
 const fetchPaymentsAndGetPaymentsWithQualityCheck = async (res) => {
   try{
     const response = await fetch('http://localhost:9292/api/bookings').then(res => res.json())
@@ -112,13 +101,18 @@ const tests = async (res) => {
 
     //test over and under payment
     testResults.isUnderPaymentTestPass = paymentsAfterCheck[0].isUnderPayment
+    testResults.isUnderPaymentTestPass = !paymentsAfterCheck[2].isUnderPayment
 
     testResults.isOverPaymentTestPass = paymentsAfterCheck[2].isOverPayment 
+    testResults.isOverPaymentTestPass2 = !paymentsAfterCheck[0].isOverPayment 
 
     testResults.isAmountThresholdTestPass = paymentsAfterCheck[0].qualityCheck.includes('AmountThreshold')
+    testResults.isAmountThresholdTestPass2 = paymentsAfterCheck[0].qualityCheck.includes('AmountThreshold')
 
-    testResults.isDuplicatePaymentTestPass = paymentsAfterCheck[1].qualityCheck.includes('DuplicatePayment')
+    testResults.isDuplicatePaymentTestPass = !paymentsAfterCheck[0].qualityCheck.includes('DuplicatePayment')
+    testResults.isDuplicatePaymentTestPass2 = paymentsAfterCheck[1].qualityCheck.includes('DuplicatePayment')
 
+    //checked more emails later
     testResults.isInvalidEmail = paymentsAfterCheck[0].qualityCheck.includes('InvalidEmail')
 
     //test conversion
@@ -147,10 +141,19 @@ const tests = async (res) => {
 }
 
 module.exports = {
-
   fetchPaymentsAndGetPaymentsWithQualityCheck,
   tests,
 };
+
+const checkEmail = (email) => {
+  // var emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;  //slow
+  var emailRegex = /[a-z0-9]+@[a-z]+\.[a-z]{2,3}/;  
+  
+  //returns null if no match
+  let isValidEmail = !!email.match(emailRegex)
+
+  return isValidEmail
+}
 
 function checkIsAmountThreshold (amountInDollars){
   return amountInDollars > AMOUNT_THRESHOLD
