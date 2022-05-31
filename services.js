@@ -38,24 +38,20 @@ const fetchPaymentsAndGetPaymentsWithQualityCheck = async (res) => {
 
 //create a map for currencies - that will be deleted every 1 hour and filled again for latest currencies 
 const getPaymentsWithQualityCheck = async (bookings) => {
-  // let bookings = await axios.post('http://localhost:9292/api/bookings')  //didnt work with axios :/
-
   const payedUserIds = {}
 
   let resData = []
 
   for(booking of bookings){
     let resBooking = {}
-
     resBooking.reference = booking.reference
-    resBooking.amount = booking.amount
-    resBooking.studentId = booking.student_id
-
+    
     let amountInDollars = await convertToDollars(booking.amount, booking.currency_from);
+    resBooking.amount = amountInDollars
 
     resBooking.amountWithFees = getAmountWithFees(amountInDollars);
 
-    resBooking.amountReceived = booking.amount_received
+    resBooking.amountReceived = await convertToDollars(booking.amount_received, booking.currency_from);
 
     //duplicate payment - if the booking.student_id already exists and already has a payment
     resBooking.qualityCheck = qualityCheck(booking, payedUserIds);
@@ -65,7 +61,7 @@ const getPaymentsWithQualityCheck = async (bookings) => {
 
     resData.push(resBooking)
 
-    payedUserIds[resBooking.studentId] = true
+    payedUserIds[booking.student_id] = true
   }
 
   return resData    
