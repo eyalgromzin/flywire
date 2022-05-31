@@ -14,7 +14,9 @@ setInterval(() => {
 const AMOUNT_THRESHOLD = 1000000
 
 const checkEmail = (email) => {
-  var emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+  // var emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;  //slow
+  var emailRegex = /[a-z0-9]+@[a-z]+\.[a-z]{2,3}/;  
+  
 
   //returns null is no match
   let isValidEmail = !!email.match(emailRegex)
@@ -146,7 +148,7 @@ const tests = async (res) => {
 }
 
 module.exports = {
-  getPaymentsWithQualityCheck,
+
   fetchPaymentsAndGetPaymentsWithQualityCheck,
   tests,
 };
