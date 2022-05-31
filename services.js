@@ -51,7 +51,7 @@ const getPaymentsWithQualityCheck = async (bookings) => {
     resBooking.amount = booking.amount
     resBooking.studentId = booking.student_id
 
-    let amountInDollars = await getConvertedAmountInDollars(booking.amount, booking.currency_from);
+    let amountInDollars = await convertToDollars(booking.amount, booking.currency_from);
 
     resBooking.amountWithFees = getAmountWithFees(amountInDollars);
 
@@ -126,15 +126,18 @@ const tests = async (res) => {
     testResults.isInvalidEmail = paymentsAfterCheck[0].qualityCheck.includes('InvalidEmail')
 
     //test conversion
-    testResults.conversionTest1Pass = await getConvertedAmountInDollars(100, 'USD') == 100  //good conversion rate
-    testResults.conversionTest2Pass = await getConvertedAmountInDollars(100, 'CAD') < 1000   //strange conversion rate
-    testResults.conversionTest3Pass = await getConvertedAmountInDollars(100, 'CAD') > 1   //strange conversion rate
+    testResults.conversionTest1Pass = await convertToDollars(100, 'USD') == 100  //good conversion rate
+    testResults.conversionTest2Pass = await convertToDollars(100, 'CAD') < 1000   //strange conversion rate
+    testResults.conversionTest3Pass = await convertToDollars(100, 'CAD') > 1   //strange conversion rate
+    testResults.conversionTest4Pass = await convertToDollars(100, 'cad') > 1   //strange conversion rate
+    testResults.conversionTest5Pass = await convertToDollars(100, 'eur') > 1   //strange conversion rate
+    testResults.conversionTest6Pass = await convertToDollars(100, 'eur') < 1000   //strange conversion rate
 
     //test email
-    testResults.emailTest1Pass = qualityCheck({email: 'asd asd@gmail'}).includes('InvalidEmail')  
-    testResults.emailTest2Pass = qualityCheck({email: 'asd@gmail'}).includes('InvalidEmail')  
-    testResults.emailTest3Pass = qualityCheck({email: 'asd-@gmail.com'}).includes('InvalidEmail') 
-    testResults.emailTest4Pass = !qualityCheck({email: 'mail@gmail.com'}).includes('InvalidEmail') 
+    testResults.invalidEmailTest1Pass = qualityCheck({email: 'asd asd@gmail'}).includes('InvalidEmail')  
+    testResults.invalidEmailTest2Pass = qualityCheck({email: 'asd@gmail'}).includes('InvalidEmail')  
+    testResults.invalidEmailTest3Pass = qualityCheck({email: 'asd-@gmail.com'}).includes('InvalidEmail') 
+    testResults.isValidEmailTestPass = !qualityCheck({email: 'mail@gmail.com'}).includes('InvalidEmail') 
 
     //check fees
     testResults.fees1Pass = parseFloat(getAmountWithFees(100)) == parseFloat(100 * 1.05)
@@ -202,7 +205,7 @@ function getAmountWithFees(amountInDollars) {
   return amountWithFees;
 }
 
-async function getConvertedAmountInDollars(amount, currencyFrom) {
+async function convertToDollars(amount, currencyFrom) {
   let upperCurrencyFrom = currencyFrom.toUpperCase()
   let amountInDollars;
   if (currencyFrom.toUpperCase() != 'USD') {
